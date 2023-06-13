@@ -6,7 +6,7 @@ pub use self::error::{Error, Result};
 
 use std::net::SocketAddr;
 
-use axum::Router;
+use axum::{Router, Json};
 use axum::extract::Query;
 use axum::routing::get;
 use axum::response::{Html, IntoResponse};
@@ -14,7 +14,7 @@ use serde::Deserialize;
 use tracing::{event, Level};
 use web::routes_login;
 
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 #[derive(Debug, Deserialize)]
 struct EspParams {
@@ -22,15 +22,18 @@ struct EspParams {
     secret: Option<String>,
 }
 
-async fn handler_esp(Query(params): Query<EspParams>) -> impl IntoResponse {
-    event!(Level::INFO, "->> {:<12} - handler_hello - {params:?}", "HANDLER");
+async fn handler_esp(Json(payload): Json<EspParams>) -> impl IntoResponse {
+    event!(Level::INFO, "->> {:<12} - handler_hello - {payload:?}", "HANDLER");
+    println!("received payload: {:?}", payload);
 
     let output = Command::new("python3")
         .arg("./hook.py")
-        .arg(params.location.clone().unwrap_or("location".to_string()))
-        .arg(params.secret.clone().unwrap_or("secret".to_string()))
+        .arg(payload.location.unwrap_or("location".to_string()))
+        .arg(payload.secret.unwrap_or("secret".to_string()))
+        .stdout(Stdio::piped())
         .output().unwrap();
-    println!("command executed with {:?}", params);
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    println!("From sdk: {}", stdout);
 }
 
 #[tokio::main]

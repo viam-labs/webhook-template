@@ -6,13 +6,13 @@ from viam.rpc.dial import Credentials, DialOptions
 
 async def connect(location, secret):
     creds = Credentials(
-        type=location,
+        type='robot-location-secret',
         payload=secret)
     opts = RobotClient.Options(
         refresh_interval=0,
         dial_options=DialOptions(credentials=creds)
     )
-    return await RobotClient.at_address('ADDRESS FROM THE VIAM APP', opts)
+    return await RobotClient.at_address(location, opts)
 
 async def main():
     location = sys.argv[1]
