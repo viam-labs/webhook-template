@@ -29,7 +29,7 @@ ADD ./requirements.txt ./requirements.txt
 RUN pip install -r requirements.txt
 
 # copy over script
-ADD ./hook.py ./hook.py
+ADD ./hook.py ${APP}/hook.py
 
 # launch hook server
 EXPOSE 8080

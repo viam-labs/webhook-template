@@ -2,6 +2,7 @@ import asyncio
 import sys
 
 from viam.robot.client import RobotClient
+from viam.components.board import Board
 from viam.rpc.dial import Credentials, DialOptions
 
 async def connect(location, secret):
@@ -15,17 +16,25 @@ async def connect(location, secret):
     return await RobotClient.at_address(location, opts)
 
 async def main():
+    print("err muh grrr")
     location = sys.argv[1]
     secret = sys.argv[2]
+    target_bot = sys.argv[3]
 
     robot = await connect(location, secret)
 
     print('Resources:')
-    print(robot.resource_names)
+    resources = robot.resource_names
+    print(resources)
+
+    board = Board.from_robot(robot, resources[0])
+    board_pin = await board.gpio_pin_by_name("22")
+    print(f"arstrts gpio_pin_by_name return value: {await board_pin.get()}")
+
+    # get pin, set high with pwm of 0.5
 
     await robot.close()
 
 if __name__ == '__main__':
-    print("err muh grrr")
     asyncio.run(main())
  
