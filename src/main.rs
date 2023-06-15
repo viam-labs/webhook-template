@@ -14,6 +14,7 @@ use axum::{Router, Json};
 use axum::extract::Query;
 use axum::routing::get;
 use axum::response::{Html, IntoResponse};
+use axum::http::StatusCode;
 use serde::Deserialize;
 use tracing::{error, event, Level, span};
 use opentelemetry::sdk::export::trace::stdout;
@@ -28,6 +29,22 @@ struct EspParams {
     location: Option<String>,
     secret: Option<String>,
     target: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct HelloParams {
+    name: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct HelloResponse {
+    response: String,
+}
+
+async fn handler_hello(Json(payload): Json<HelloParams>) -> impl IntoResponse {
+    event!(Level::INFO, "->> {:<12} - handler_esp - {payload:?}", "HANDLER");
+    let name = payload.name.unwrap_or("World".to_string());
+    Html(format!("Hello, {}!", name))
 }
 
 async fn handler_esp(Json(payload): Json<EspParams>) -> impl IntoResponse {
@@ -76,6 +93,10 @@ async fn main() {
         .route(
             "/esp",
             get(handler_esp),
+        )
+        .route(
+            "/hello",
+            get(handler_hello),
         )
         .merge(routes_login::routes());
 
