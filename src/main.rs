@@ -7,6 +7,7 @@ pub use self::error::{Error, Result};
 use std::net::SocketAddr;
 use std::time::Duration;
 use duct::cmd;
+use serde::Serialize;
 use std::io::prelude::*;
 use std::io::BufReader;
 
@@ -36,34 +37,47 @@ struct HelloParams {
     name: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct HelloResponse {
     response: String,
 }
 
-async fn handler_hello(Json(payload): Json<HelloParams>) -> impl IntoResponse {
-    event!(Level::INFO, "->> {:<12} - handler_esp - {payload:?}", "HANDLER");
-    let name = payload.name.unwrap_or("World".to_string());
-    Html(format!("Hello, {}!", name))
+#[derive(Debug, Deserialize, Serialize)]
+struct EspResponse {
+    response: String,
 }
 
-async fn handler_esp(Json(payload): Json<EspParams>) -> impl IntoResponse {
+async fn handler_hello(Json(payload): Json<HelloParams>) -> Json<HelloResponse> {
+    event!(Level::INFO, "->> {:<12} - handler_esp - {payload:?}", "HANDLER");
+    let name = payload.name.unwrap_or("World".to_string());
+    let response = format!("Hello, {}!", name);
+    let response = HelloResponse { response };
+    Json(response)
+}
+
+async fn call_sdk(lang: String, script: String, location: String, secret: String, target: String) {
+    let big_cmd = cmd!(
+        lang, 
+        script, 
+        location,
+        secret,
+        target,
+        "1>&2").run();
+}
+
+async fn handler_esp(Json(payload): Json<EspParams>) -> Json<EspResponse> {
     event!(Level::INFO, "->> {:<12} - handler_hello - {payload:?}", "HANDLER");
     println!("received payload: {:?}", payload);
 
-    let big_cmd = cmd!(
-        "python3", 
-        "hook.py", 
-        payload.location.unwrap_or("url".to_string()), 
-        payload.secret.unwrap_or("password".to_string()), 
-        payload.target.unwrap_or("target".to_string()),
-        "1>&2");
-    let reader = big_cmd.stderr_to_stdout().reader().unwrap();
-    let mut lines = BufReader::new(reader).lines();
-    for line in lines {
-        println!("{}", line.unwrap());
-    }
+    call_sdk(
+        "python3".to_string(), 
+        "hook.py".to_string(), 
+        payload.location.unwrap_or("url".to_string()),
+        payload.secret.unwrap_or("secret".to_string()),
+        payload.target.unwrap_or("target".to_string())
+    ).await;
 
+    Json(EspResponse { response: "secret received".to_string()})
 }
 
 #[tokio::main]
