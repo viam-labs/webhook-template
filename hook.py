@@ -28,17 +28,6 @@ async def main():
     resources = robot.resource_names
     print(resources)
 
-    board = Board.from_robot(robot, target)
-    board_pin = await board.gpio_pin_by_name("22")
-    print(f"gpio_pin_by_name return value: {await board_pin.get()}")
-    loop {
-        await board_pin.set(True)
-        time.sleep(1)
-        await board_pin.set(False)
-        time.sleep(1)
-
-    }
-
     # get pin, set high with pwm of 0.5
 
     await robot.close()

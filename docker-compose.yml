@@ -1,0 +1,20 @@
+services:
+  hook:
+    build: .
+    environment:
+      OTEL_EXPORTER_JAEGER_AGENT_HOST: jaeger
+      OTEL_EXPORTER_JAEGER_AGENT_PORT: "6831"
+      OTEL_EXPORTER_SERVICE_NAME: hook
+
+    ports:
+      - "9000:8080"
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.6
+    ports:
+      - "6831:6831/udp" # Thrift-compact protocol by most sdks
+      - "14268:14268" # accept thrift directly from clients
+      - "5778:5778" # serve configs, (sampling, etc)
+      - "4317:4317" # accept opentelemetry over grpc (if enabled)
+      - "4318:4318" # accept opentelemetry over http (if enabled)
+      - "16686:16686" # webapp

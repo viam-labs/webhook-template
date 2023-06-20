@@ -24,9 +24,14 @@ RUN groupadd $APP_USER \
 
 COPY --from=builder /viam-webhook/target/release/viam-webhook ${APP}/viam-webhook
 
-# install python reqs
-ADD ./requirements.txt ./requirements.txt
-RUN pip install -r requirements.txt
+# ADD ./requirements.txt ./requirements.txt
+#  RUN pip install -r requirements.txt
+ADD ./viam-python-sdk ./viam-python-sdk
+RUN pip install poetry
+RUN cd viam-python-sdk && poetry build && cd ..
+RUN pip install viam-python-sdk/dist/viam_sdk-0.4.1-py3-none-any.whl
+RUN cp viam-python-sdk/src/viam/rpc/libviam_rust_utils.so /usr/local/lib/python3.11/site-packages/viam/rpc/
+
 
 # copy over script
 ADD ./hook.py ${APP}/hook.py
