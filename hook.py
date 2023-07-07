@@ -30,19 +30,12 @@ async def main():
         robot = await connect(location, secret)
 
         board = Board.from_robot(robot, "board")
-        soil = await board.analog_reader_by_name("soil")
-        # lower is wetter, higher is dryer
-        dryness = await soil.read()
-        print(f"dryness: {dryness}")
 
-        # pump pin
         gpio = await board.gpio_pin_by_name("15")
 
-        # if humidity sensor above/below certain level
-        if dryness > 100:
-            await gpio.set(True)
-            time.sleep(3)
-            await gpio.set(False)
+        await gpio.set(True)
+        time.sleep(3)
+        await gpio.set(False)
 
         delta = timedelta(
             #days=50,
