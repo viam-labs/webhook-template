@@ -10,7 +10,7 @@
 
 Follow steps 1, 2, and 3 to use fly.io's [`flyctl`](https://fly.io/docs/hands-on/install-flyctl/) tool.
 
-1. `$ cd hook`
+1. `$ cd <my-webhook-project>`
 2. `$ fly launch`; this is only done once, for updating apps use `fly deploy`
 
 ## Add Webhook Configs to Robot
