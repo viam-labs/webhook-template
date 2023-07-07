@@ -16,7 +16,7 @@ RUN go mod download
 RUN go build -o /gohook
 
 # intstall python deps and run webhook
-FROM python:3.11.4-slim-bullseye as main
+FROM python:3.11.4-slim-bullseye 
 ARG APP=/usr/src/app
 
 RUN apt-get update \
