@@ -77,7 +77,7 @@ func main() {
   myboard.SetPowerMode(context.Background(), boardpb.PowerMode_POWER_MODE_OFFLINE_DEEP, &dur)
 
   // trying to close an abandoned (by esp32) connection
-  err := robot.Close(context.Background())
+  err = robot.Close(context.Background())
   if err != nil {
     logger.Error("failed to close. may be sleeping already.")
   }
