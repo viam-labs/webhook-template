@@ -43,13 +43,6 @@ func main() {
     logger.Error(err)
   }
 
-  // analog reader
-  reader, isConnected:= myboard.AnalogReaderByName("soil")
-  if !isConnected {
-    logger.Error("Failed to get soil reader")
-  }
-
-  // pump pin
   pin, err:= myboard.GPIOPinByName("15")
   if err!=nil {
     logger.Error(err)
@@ -57,19 +50,9 @@ func main() {
 
   logger.Debugf("GPIOPinByName return value: %v", pin)
 
-  // get dryness
-  dryness, err := reader.Read(context.Background(), nil)
-  if err!=nil {
-    logger.Error(err)
-  }
-
-  fmt.Println("dryness: ", dryness)
-
-  if dryness > 100 {
-    pin.Set(context.Background(), true, nil)
-    time.Sleep(3 * time.Second)
-    pin.Set(context.Background(), false, nil)
-  }
+  pin.Set(context.Background(), true, nil)
+  time.Sleep(3 * time.Second)
+  pin.Set(context.Background(), false, nil)
 
   dur := time.Second * 60
 
