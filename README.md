@@ -49,4 +49,4 @@ The following steps take place in your [`app.viam`](https://app.viam.com) accoun
 
 ## Monitoring 
 
-Webhook Logs: "https://<my-fly-io-app>/monitoring"
+Webhook Logs: "https://my-fly-io-app/monitoring"
