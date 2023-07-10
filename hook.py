@@ -33,7 +33,7 @@ async def try_to_async(func, args, error, num_try=NUM_TRY):
             logging.error(error)
     return r
 
-def try_to(func, args, error):
+def try_to(func, args, error, num_try=NUM_TRY):
     r = None
     for _ in range(num_try):
         try:
