@@ -19,8 +19,8 @@ async def connect(location, secret):
     opts = RobotClient.Options(
         refresh_interval=0,
         dial_options=DialOptions(credentials=creds),
-        attempt_reconnect_interval=5,
-        disable_sessions=True
+        attempt_reconnect_interval=15,
+        #disable_sessions=True
     )
     return await RobotClient.at_address(location, opts)
 
@@ -44,7 +44,7 @@ async def main():
 
     while True:
         try:
-            robot = connect(location, secret)
+            robot = await connect(location, secret)
             board = Board.from_robot(robot, "board")
             gpio = await board.gpio_pin_by_name("15")
             await gpio.set(True)
