@@ -19,30 +19,10 @@ async def connect(location, secret):
     opts = RobotClient.Options(
         refresh_interval=0,
         dial_options=DialOptions(credentials=creds),
-        attempt_reconnect_interval=15
+        attempt_reconnect_interval=5,
+        disable_sessions=True
     )
     return await RobotClient.at_address(location, opts)
-
-async def try_to_async(func, args, error, num_try=NUM_TRY):
-    r = None
-    for _ in range(num_try):
-        try:
-            r = await func(*args)
-            break
-        except:
-            logging.error(error)
-    return r
-
-def try_to(func, args, error, num_try=NUM_TRY):
-    r = None
-    for _ in range(num_try):
-        try:
-            r = func(*args)
-            break
-        except:
-            logging.error(error)
-    return r
-
 
 async def main():
     location = sys.argv[1]
@@ -62,21 +42,25 @@ async def main():
         #weeks=2
     )
 
-    # in the event of unstable connection, every gRPC-based call has the
-    # possibility of timing out and throwing an exception.
-    robot = await try_to_async(connect, [location, secret], "failed to connect")
-    board = try_to(Board.from_robot, [robot, "board"], "connection dropped while getting board")
-    gpio = await try_to_async(board.gpio_pin_by_name, ["15"], "connection dropped while getting gpio")
-    await try_to_async(gpio.set, [True], "connection dropped while setting pin high")
+    while True:
+        try:
+            robot = connect(location, secret)
+            board = Board.from_robot(robot, "board")
+            gpio = await board.gpio_pin_by_name("15")
+            await gpio.set(True)
+            time.sleep(3)
+            await gpio.set(False)
 
-    time.sleep(3)
-
-    await try_to_async(gpio.set, [False], "connection dropped while setting pin low")
-
-    # The final method makes a call that expects a response in order to return properly,
-    # however, if the power is successfully set to Deep Sleep, the device will not be able
-    # to respond, throwing an exception.
-    await try_to_async(board.set_power_mode, [PowerMode.POWER_MODE_OFFLINE_DEEP, delta], "success", 1)
+            # The final method makes a call that expects a response in order to return properly,
+            # however, if the power is successfully set to Deep Sleep, the device will not be able
+            # to respond, throwing an exception.
+            try: 
+                board.set_power_mode(PowerMode.POWER_MODE_OFFLINE_DEEP, duration=delta)
+            except Exception as _:
+                logging.info("success!")
+                return
+        except Exception as e:
+            logging.error(e)
 
     # As the connection would time out if successfully put to deep sleep, `robot.close()`
     # is not necessary and would fail.
