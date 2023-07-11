@@ -1,10 +1,5 @@
 # Micro-RDK Webhook Template
 
-## TODO
-
-- update scripts for better connection cleanup
-- Jaeger instructions
-
 ## Wiring Instructions
 
 Follow the directions [here](https://docs.viam.com/tutorials/get-started/make-an-led-blink-with-the-viam-app/) to wire your breadboard.
