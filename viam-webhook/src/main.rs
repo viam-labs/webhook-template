@@ -3,10 +3,6 @@ use std::process::Command;
 use serde::{Serialize, Deserialize};
 
 use tracing::{info, debug, instrument};
-use tracing_subscriber::{
-    prelude::*,
-    layer::SubscriberExt,
-};
 
 use axum::{
     extract::Path,
@@ -81,18 +77,9 @@ async fn handler_hook(Path(lang): Path<String>, Json(payload): Json<EspParams>) 
 #[tokio::main]
 async fn main() {
     // Install a new OpenTelemetry trace pipeline
-
-    opentelemetry::global::set_text_map_propagator(opentelemetry_jaeger::Propagator::new());
-    // Use the tracing subscriber `Registry`, or any other subscriber
-    // that impls `LookupSpan`
-    let tracer = opentelemetry_jaeger::new_agent_pipeline()
-        .with_auto_split_batch(true)
-        .with_service_name("hook-endpoint")
-        .install_batch(opentelemetry::runtime::Tokio).expect("there");
-    tracing_subscriber::registry()
-        .with(tracing_subscriber::EnvFilter::new("TRACE"))
-        .with(tracing_opentelemetry::layer().with_tracer(tracer))
-        .try_init().expect("failed to init tracer");
+    tracing_subscriber::fmt()
+    .with_max_level(tracing::Level::DEBUG)
+    .init();
 
     let routes_all = Router::new()
         .route("/:lang", get(handler_hook))
