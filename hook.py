@@ -17,7 +17,7 @@ async def connect(location, secret):
         refresh_interval=0,
         dial_options=DialOptions(credentials=creds),
         attempt_reconnect_interval=15,
-        #disable_sessions=True
+        disable_sessions=True
     )
     return await RobotClient.at_address(location, opts)
 
