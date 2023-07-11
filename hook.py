@@ -9,9 +9,6 @@ from viam.components.board import Board
 from viam.rpc.dial import Credentials, DialOptions
 from viam.proto.component.board import PowerMode
 
-# Number of times each rpc-based call will be tried
-NUM_TRY = 3
-
 async def connect(location, secret):
     creds = Credentials(
         type='robot-location-secret',
@@ -55,7 +52,7 @@ async def main():
             # however, if the power is successfully set to Deep Sleep, the device will not be able
             # to respond, throwing an exception.
             try: 
-                board.set_power_mode(PowerMode.POWER_MODE_OFFLINE_DEEP, duration=delta)
+                await board.set_power_mode(PowerMode.POWER_MODE_OFFLINE_DEEP, duration=delta)
             except Exception as _:
                 logging.info("success!")
                 return
