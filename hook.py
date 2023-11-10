@@ -10,22 +10,20 @@ from viam.logging import getLogger
 
 LOGGER = getLogger("example-script")
 
-async def connect(location, secret):
-    creds = Credentials(
-        type='robot-location-secret',
-        payload=secret)
+async def connect(robot_url,api_key_id, api_key):
     opts = RobotClient.Options(
         refresh_interval=0,
-        dial_options=DialOptions(credentials=creds),
         check_connection_interval=0,
         attempt_reconnect_interval=0,
-        disable_sessions=True
+        disable_sessions=True,
+        dial_options=DialOptions.with_api_key(api_key_id=api_key_id,api_key=api_key)
     )
-    return await RobotClient.at_address(location, opts)
+    return await RobotClient.at_address(robot_url, opts)
 
 async def main():
     robot_url = sys.argv[1]
-    secret = sys.argv[2]
+    api_key_id = sys.argv[2]
+    api_key = sys.argv[3]
 
     # duration of deep sleep until device's next call to webhook
     delta = timedelta(
@@ -36,7 +34,7 @@ async def main():
     n_try = 10
     while n_try:
         try:
-            robot = await connect(robot_url,secret)
+            robot = await connect(robot_url,api_key_id,api_key)
             break;
         except Exception as e:
             n_try = n_try - 1;

@@ -9,9 +9,11 @@ use axum::{
 };
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 struct EspParams {
     location: Option<String>,
-    secret: Option<String>,
+    api_key_id: Option<String>,
+    api_key: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -21,13 +23,15 @@ struct EspResponse {
 
 async fn handler_hook(Path(lang): Path<String>, Json(payload): Json<EspParams>) -> Json<EspResponse> {
     let fqdn = payload.location.unwrap_or("url".to_string());
-    let secret = payload.secret.unwrap_or("secret".to_string());
+    let api_key_id = payload.api_key_id.unwrap_or("api-key-id".to_string());
+    let api_key = payload.api_key.unwrap_or("api-key".to_string());
     match lang.as_str() {
         "py" => {
             Command::new("python3")
                 .arg("hook.py")
                 .arg(fqdn)
-                .arg(secret)
+                .arg(api_key_id)
+                .arg(api_key)
                 .spawn().unwrap();
         }
         _ => {
