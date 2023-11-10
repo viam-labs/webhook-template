@@ -21,11 +21,10 @@ The following steps take place in your [`app.viam`](https://app.viam.com) accoun
 2. In your robot's `Config` tab, select the `Raw JSON` option and paste the json template below
 3. Replace `<my-webhook-url>` with your fly.io app's url and append one of the following paths to it
    - `/py` to execute `hook.py`, ex. `https://my-app-url/py`
-   - `/go` to execute `gohook/hook.go`, ex. `https://my-app-url/go`
 4. Replace `<my-robot-location-secret>` with your location secret found in your robot's `Code Sample` example
 5. Save your config
 
-> Note: The template's SDK scripts, (i.e. `hook.py`, `hook.go`) assume your board is named `board`.
+> Note: The template's SDK scripts, (i.e. `hook.py`) assume your board is named `board`.
 
 ```json
 {

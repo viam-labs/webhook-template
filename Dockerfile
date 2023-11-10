@@ -7,14 +7,6 @@ COPY ./viam-webhook .
 RUN cargo build
 RUN rm src/*.rs
 
-# build go sdk script
-FROM golang:bullseye as gobuilder
-WORKDIR ./gohook
-
-COPY gohook/ ./
-RUN go mod download
-RUN go build -o /gohook
-
 # intstall python deps and run webhook
 FROM python:3.11.4-slim-bullseye 
 ARG APP=/usr/src/app
@@ -32,8 +24,6 @@ RUN groupadd $APP_USER \
 
 COPY --from=rbuilder /viam-webhook/target/debug/viam-webhook ${APP}/viam-webhook
 
-COPY --from=gobuilder /gohook ${APP}/gohook
-
 ADD ./requirements.txt ./requirements.txt
 RUN pip install -r requirements.txt
 
@@ -47,10 +37,5 @@ RUN chown -R $APP_USER:$APP_USER ${APP}
 
 USER $APP_USER
 WORKDIR ${APP}
-
-# Jaeger configs
-# ENV OTEL_EXPORTER_JAEGER_AGENT_HOST="my-jaeger-instance.internal" \
-#     OTEL_EXPORTER_JAEGER_AGENT_PORT="6831" \
-#     OTEL_EXPORTER_SERVICE_NAME="hook"
 
 CMD ["./viam-webhook"]
